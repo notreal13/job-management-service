@@ -1,0 +1,49 @@
+= Getting Started With Spring REST Docs
+
+This is an example output for a service running at http://localhost:8080:
+
+== Swagger
+
+link:../swagger-ui.html[swagger-ui]
+
+== H2 Console
+
+link:../h2-console[h2-console]
+
+== Description
+
+| `200 OK`
+| Standard response for successful HTTP requests.
+
+| `400 BAD REQUEST`
+| The server cannot or will not process the request due to something that is perceived to be a client error (e.g., malformed request syntax, invalid request message framing, or deceptive request routing).
+
+== API
+
+[[get-job]]
+=== Get job
+
+```
+GET {apiUrl}/v1/job/{id}
+```
+
+==== response fields
+
+include::{snippets}/get-job/response-fields.adoc[]
+
+==== request
+
+include::{snippets}/get-job/curl-request.adoc[]
+
+'''
+[[create-job]]
+=== Create job
+
+```
+POST {apiUrl}/v1/job?type=DWH&priority=1
+```
+
+==== request
+
+include::{snippets}/post-job/curl-request.adoc[]
+
