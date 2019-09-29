@@ -1,8 +1,7 @@
 package com.example.demo.controller;
 
-import com.example.demo.bean.Job;
-import com.example.demo.bean.JobState;
-import com.example.demo.service.JobService;
+import com.example.demo.bean.JobSchedule;
+import com.example.demo.service.JobScheduleService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +15,6 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.Arrays;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -24,6 +22,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -33,48 +32,60 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @AutoConfigureRestDocs
-@TestPropertySource(properties = "app.schedule-jobs-from-db.enabled=false")
-public class JobControllerTest {
+@TestPropertySource(properties = "app.read-queued-jobs-from-db.enabled=false")
+public class JobScheduleControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @MockBean
-    private JobService jobServiceMock;
+    private JobScheduleService jobScheduleServiceMock;
 
     @Test
-    public void createJob() throws Exception {
-        when(jobServiceMock.createJob(any(), any())).thenReturn(1L);
-        mockMvc.perform(post("/v1/job")
+    public void createJobSchedule() throws Exception {
+        when(jobScheduleServiceMock.createJobSchedule(any(), any(), any())).thenReturn(1L);
+
+        mockMvc.perform(post("/v1/schedule")
                 .contentType(MediaType.APPLICATION_JSON)
-                .param("type", "DWH")
-                .param("priority", "1"))
+                .param("type", "INDEXING")
+                .param("priority", "10")
+                .param("cron", "0/55 * * * * ?"))
                 .andDo(print())
                 .andDo(
-                        document("post-job")
-                ).andExpect(status().isOk())
+                        document("post-schedule")
+                )
+                .andExpect(status().isOk())
                 .andReturn();
     }
 
     @Test
-    public void getJobById() throws Exception {
-        when(jobServiceMock.getJob(any())).thenReturn(new Job());
+    public void getJobSchedule() throws Exception {
+        when(jobScheduleServiceMock.getJobSchedule(any())).thenReturn(new JobSchedule());
 
-        mockMvc.perform(get("/v1/job/" + ThreadLocalRandom.current().nextInt())
+        mockMvc.perform(get("/v1/schedule/" + ThreadLocalRandom.current().nextInt(1_000))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andDo(
-                        document("get-job",
+                        document("get-schedule",
                                 responseFields(
-                                        fieldWithPath("id").type(JsonFieldType.NUMBER).optional().description("Job id"),
+                                        fieldWithPath("id").type(JsonFieldType.NUMBER).optional().description("Job schedule id"),
                                         fieldWithPath("priority").type(JsonFieldType.NUMBER).optional().description("Job priority"),
-                                        fieldWithPath("type").type(JsonFieldType.STRING).optional().description("Job type"),
-                                        fieldWithPath("message").type(JsonFieldType.STRING).optional().description("Job message (some detail information)"),
-                                        fieldWithPath("createTime").type(JsonFieldType.STRING).optional().description("Job create time"),
-                                        fieldWithPath("updateTime").type(JsonFieldType.STRING).optional().description("Job update time"),
-                                        fieldWithPath("state").type(JsonFieldType.STRING).optional().description(Arrays.toString(JobState.values()))
+                                        fieldWithPath("jobType").type(JsonFieldType.STRING).optional().description("Job type"),
+                                        fieldWithPath("cronExpression").type(JsonFieldType.STRING).optional().description("Cron trigger expression")
                                 )))
+                .andReturn();
+    }
+
+    @Test
+    public void deleteJobSchedule() throws Exception {
+        mockMvc.perform(delete("/v1/schedule/" + ThreadLocalRandom.current().nextInt(1_000))
+                .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andDo(
+                        document("delete-schedule")
+                )
+                .andExpect(status().isOk())
                 .andReturn();
     }
 }

@@ -82,7 +82,7 @@ public class JobDaoImpl extends AbstractDao implements JobDao {
         String sql = "" +
                 " select id, priority, job_type, message, create_time, update_time, job_state " +
                 " from job " +
-                " where job_state = :job_state";
+                " where :job_state is null or job_state = :job_state";
         MapSqlParameterSource source = new MapSqlParameterSource()
                 .addValue("job_state", toString(state));
 

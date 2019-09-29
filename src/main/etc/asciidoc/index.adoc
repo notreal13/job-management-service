@@ -1,6 +1,6 @@
-= Getting Started With Spring REST Docs
+= Job Management Service Spring REST Docs
 
-This is an example output for a service running at http://localhost:8080:
+:numbered:
 
 == Swagger
 
@@ -23,27 +23,60 @@ link:../h2-console[h2-console]
 [[get-job]]
 === Get job
 
+==== request
 ```
-GET {apiUrl}/v1/job/{id}
+include::{snippets}/get-job/curl-request.adoc[]
 ```
 
 ==== response fields
 
 include::{snippets}/get-job/response-fields.adoc[]
 
-==== request
-
-include::{snippets}/get-job/curl-request.adoc[]
-
 '''
 [[create-job]]
 === Create job
 
+==== request
 ```
-POST {apiUrl}/v1/job?type=DWH&priority=1
+include::{snippets}/post-job/curl-request.adoc[]
 ```
+
+==== response
+include::{snippets}/post-job/http-response.adoc[]
+
+'''
+[[get-schedule]]
+=== Get job schedule
 
 ==== request
+```
+include::{snippets}/get-schedule/curl-request.adoc[]
+```
 
-include::{snippets}/post-job/curl-request.adoc[]
+==== response fields
 
+include::{snippets}/get-schedule/response-fields.adoc[]
+
+'''
+[[post-schedule]]
+=== Create job schedule
+
+==== request
+```
+include::{snippets}/post-schedule/curl-request.adoc[]
+```
+
+==== response
+include::{snippets}/post-schedule/http-response.adoc[]
+
+'''
+[[delete-schedule]]
+=== Delete job schedule
+
+==== request
+```
+include::{snippets}/delete-schedule/curl-request.adoc[]
+```
+
+==== response
+include::{snippets}/delete-schedule/http-response.adoc[]

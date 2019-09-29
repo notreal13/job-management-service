@@ -4,6 +4,7 @@ import com.example.demo.bean.Job;
 import com.example.demo.bean.JobState;
 import com.example.demo.external.DwhService;
 import com.example.demo.external.EmailService;
+import com.example.demo.external.IndexingService;
 import com.example.demo.service.JobBusinessService;
 import com.example.demo.service.JobService;
 import org.slf4j.Logger;
@@ -57,6 +58,8 @@ public class JobBusinessServiceImpl implements JobBusinessService {
             EmailService.simulateSendingEmail();
         } else if (type.equalsIgnoreCase("DWH")) {
             DwhService.simulateDataLoading();
+        } else if (type.equalsIgnoreCase("INDEXING")) {
+            IndexingService.simulateIndexing();
         } else {
             throw new IllegalArgumentException(MessageFormat.format("Job with type {0} has not configured yet", type));
         }

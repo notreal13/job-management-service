@@ -8,6 +8,7 @@ import com.example.demo.service.JobBusinessService;
 import com.example.demo.service.JobService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,7 @@ import org.springframework.util.CollectionUtils;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.PriorityBlockingQueue;
@@ -23,7 +25,13 @@ import java.util.concurrent.PriorityBlockingQueue;
 public class JobServiceImpl implements JobService {
     private static final Logger log = LoggerFactory.getLogger(JobServiceImpl.class);
 
-    private PriorityBlockingQueue<Task> priorityBlockingQueue = new PriorityBlockingQueue<>();
+    private PriorityBlockingQueue<Task> priorityBlockingQueue =
+            new PriorityBlockingQueue<>(
+                    11,
+                    Comparator.comparing(task -> task.getJob().getPriority()));
+
+    @Value("${app.read-queued-jobs-from-db.enabled}")
+    private boolean readQueuedJobsFromDbEnabled;
 
     @Resource(name = "jobDao")
     private JobDao jobDao;
@@ -44,20 +52,13 @@ public class JobServiceImpl implements JobService {
         Objects.requireNonNull(type, "Job type is null");
         Objects.requireNonNull(priority, "Job priority is null");
 
-        Job job = createNewJob(type, priority);
-        job.setId(jobDao.insertJob(job));
+        Job job = Job.from(type, priority);
+        Long id = jobDao.insertJob(job);
+        job.setId(id);
 
         queueJob(job);
 
         return job.getId();
-    }
-
-    private Job createNewJob(String type, Long priority) {
-        Job job = new Job();
-        job.setType(type);
-        job.setPriority(priority);
-        job.setState(JobState.QUEUED);
-        return job;
     }
 
     @Override
@@ -75,7 +76,7 @@ public class JobServiceImpl implements JobService {
         priorityBlockingQueue.put(new Task(jobBusinessService::performJob, job));
     }
 
-    @Scheduled(fixedDelayString = "${app.job-poll-delay-millis}")
+    @Scheduled(fixedDelayString = "${app.job-queue.poll-delay-millis}")
     @Override
     public void execJobs() {
         Task task = priorityBlockingQueue.poll();
@@ -87,10 +88,14 @@ public class JobServiceImpl implements JobService {
 
     @PostConstruct
     private void init() {
-        List<Job> jobs = jobDao.selectJobs(JobState.QUEUED);
-        if (!CollectionUtils.isEmpty(jobs)) {
-            log.warn("Found {} queued jobs in database. Processing...", jobs.size());
-            jobs.forEach(this::queueJob);
+        if (readQueuedJobsFromDbEnabled) {
+            List<Job> jobs = jobDao.selectJobs(JobState.QUEUED);
+            if (!CollectionUtils.isEmpty(jobs)) {
+                log.warn("Found {} queued jobs in database. Processing...", jobs.size());
+                jobs.forEach(this::queueJob);
+            }
+        } else {
+            log.warn("Reading queued jobs from DB is disabled by config");
         }
     }
 

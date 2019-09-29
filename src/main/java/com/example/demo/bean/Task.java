@@ -2,7 +2,7 @@ package com.example.demo.bean;
 
 import java.util.function.Consumer;
 
-public class Task implements Runnable, Comparable<Task> {
+public class Task implements Runnable {
 
     private Consumer<Job> jobConsumer;
     private Job job;
@@ -19,11 +19,6 @@ public class Task implements Runnable, Comparable<Task> {
     @Override
     public void run() {
         jobConsumer.accept(job);
-    }
-
-    @Override
-    public int compareTo(Task o) {
-        return job.getPriority().compareTo(o.getJob().getPriority());
     }
 
     @Override

@@ -73,10 +73,15 @@ public class Job {
                 "id=" + id +
                 ", priority=" + priority +
                 ", type='" + type + '\'' +
-                ", message='" + message + '\'' +
-                ", createTime=" + createTime +
-                ", updateTime=" + updateTime +
                 ", state=" + state +
                 '}';
+    }
+
+    public static Job from(String type, Long priority) {
+        Job job = new Job();
+        job.setType(type);
+        job.setPriority(priority);
+        job.setState(JobState.QUEUED);
+        return job;
     }
 }

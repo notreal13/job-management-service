@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -24,7 +25,7 @@ public class JobDaoTest {
     private JobDao jobDao;
 
     @Test
-    public void selectJobNonExists() {
+    public void selectJobNotExists() {
         Job job = jobDao.selectJob(ThreadLocalRandom.current().nextLong(100_000, 200_000));
         assertNull(job);
     }
@@ -86,6 +87,22 @@ public class JobDaoTest {
         assertNotNull(storedJob.getUpdateTime());
 
         assertTrue(storedJob.getUpdateTime().isAfter(storedJob.getCreateTime()));
+    }
+
+    @Test
+    public void selectJobs() {
+        jobDao.insertJob(createJob());
+        jobDao.insertJob(createJob());
+        jobDao.insertJob(createJob());
+
+        List<Job> failedJobs = jobDao.selectJobs(JobState.FAILED);
+        assertEquals(0, failedJobs.size());
+
+        List<Job> queuedJobs = jobDao.selectJobs(JobState.QUEUED);
+        assertTrue(queuedJobs.size() >= 3);
+
+        List<Job> jobs = jobDao.selectJobs(null);
+        assertTrue(jobs.size() >= 3);
     }
 
     private Job createJob() {
