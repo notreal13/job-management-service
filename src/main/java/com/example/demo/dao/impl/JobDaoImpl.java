@@ -9,6 +9,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Objects;
 
 @Repository("jobDao")
 public class JobDaoImpl extends AbstractDao implements JobDao {
@@ -26,6 +27,8 @@ public class JobDaoImpl extends AbstractDao implements JobDao {
 
     @Override
     public Job selectJob(Long id) {
+        Objects.requireNonNull(id, "Job id is null");
+
         String sql = "" +
                 " select id, priority, job_type, message, create_time, update_time, job_state " +
                 " from job " +
@@ -39,6 +42,8 @@ public class JobDaoImpl extends AbstractDao implements JobDao {
 
     @Override
     public Long insertJob(Job job) {
+        Objects.requireNonNull(job, "Job is null");
+
         String sql = "" +
                 " insert into job (id, priority, job_type, message, create_time, update_time, job_state) " +
                 " values (" +
@@ -63,6 +68,8 @@ public class JobDaoImpl extends AbstractDao implements JobDao {
 
     @Override
     public void updateJob(Job job) {
+        Objects.requireNonNull(job, "Job is null");
+
         String sql = "" +
                 " update job set" +
                 "   message = :message," +

@@ -63,7 +63,7 @@ public class JobServiceImpl implements JobService {
 
     @Override
     public void updateJob(Job job) {
-        Objects.requireNonNull(job, "job is null");
+        Objects.requireNonNull(job, "Job is null");
 
         jobDao.updateJob(job);
     }

@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.text.MessageFormat;
+import java.util.Objects;
 
 @Service("jobBusinessService")
 public class JobBusinessServiceImpl implements JobBusinessService {
@@ -23,6 +24,8 @@ public class JobBusinessServiceImpl implements JobBusinessService {
 
     @Override
     public void performJob(Job job) {
+        Objects.requireNonNull(job, "Job is null");
+
         log.info("Receiving job with type {} and priority {}", job.getType(), job.getPriority());
 
         try {

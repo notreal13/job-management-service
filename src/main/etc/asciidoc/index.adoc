@@ -10,7 +10,63 @@ link:../swagger-ui.html[swagger-ui]
 
 link:../h2-console[h2-console]
 
+== Application configuration
+
+*Main configuration*
+
+On start app read jobs with state QUEUED from the database and execute them
+```
+app.read-queued-jobs-from-db.enabled=true
+```
+'''
+On start app read job schedules from the database and perform them
+```
+app.schedule-jobs-from-db.enabled=true
+```
+'''
+Interval polling queue with jobs for executing (milliseconds)
+```
+app.job-queue.poll-delay-millis=100
+```
+'''
+
+*Thread Pool Task Executor configuration*
+(link:https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/scheduling/concurrent/ThreadPoolTaskExecutor.html[docs])
+
+[small]#The current setup is for testing purposes#
+
+Core pool size
+```
+app.async.core-pool-size=1
+```
+'''
+Max pool size
+```
+app.async.max-pool-size=1
+```
+'''
+Queue capacity
+```
+app.async.queue-capacity=1
+```
+
 == Description
+
+*This application designed to run in single instance mode.*
+
+
+[.underline]#The database contains:#
+
+* one job of type 'EMAIL' in the state 'QUEUED'
+* one schedule for the job of type 'INDEXING' with cron '0/55 * * * * ?' (run every 55 sec)
+
+[.underline]#For testing purposes configured 3 types of business jobs:#
+
+* *EMAIL* - simulates sending e-mail (taking 300 milliseconds)
+* *DWH* - simulates data loading (taking 10 seconds, an error occurs in half starts)
+* *INDEXING* - simulates indexing operation (taking 42 seconds)
+
+[.underline]#Web controller responses:#
 
 | `200 OK`
 | Standard response for successful HTTP requests.

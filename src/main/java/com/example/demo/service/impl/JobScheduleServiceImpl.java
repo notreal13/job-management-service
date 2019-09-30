@@ -61,7 +61,7 @@ public class JobScheduleServiceImpl implements JobScheduleService {
 
     @Override
     public void deleteJobSchedule(Long id) {
-        Objects.requireNonNull(id);
+        Objects.requireNonNull(id, "Job schedule id is null");
 
         JobSchedule jobSchedule = jobScheduleDao.selectJobSchedule(id);
         if (jobSchedule == null) {

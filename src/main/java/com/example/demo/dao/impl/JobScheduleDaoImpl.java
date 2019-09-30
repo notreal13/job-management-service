@@ -8,6 +8,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Objects;
 
 @Repository("jobScheduleDao")
 public class JobScheduleDaoImpl extends AbstractDao implements JobScheduleDao {
@@ -22,6 +23,8 @@ public class JobScheduleDaoImpl extends AbstractDao implements JobScheduleDao {
 
     @Override
     public JobSchedule selectJobSchedule(Long id) {
+        Objects.requireNonNull(id, "Job schedule is null");
+
         String sql = "" +
                 " select id, priority, job_type, cron_expression " +
                 " from job_schedule " +
@@ -44,6 +47,8 @@ public class JobScheduleDaoImpl extends AbstractDao implements JobScheduleDao {
 
     @Override
     public Long insertJobSchedule(JobSchedule jobSchedule) {
+        Objects.requireNonNull(jobSchedule, "JOb schedule is null");
+
         String sql = "" +
                 " insert into job_schedule (id, priority, job_type, cron_expression) " +
                 " values (" +
@@ -65,13 +70,14 @@ public class JobScheduleDaoImpl extends AbstractDao implements JobScheduleDao {
 
     @Override
     public void deleteJobSchedule(Long id) {
+        Objects.requireNonNull(id, "Job id is null");
+
         String sql = "" +
                 " delete " +
                 " from job_schedule " +
                 " where id = :id";
         MapSqlParameterSource source = new MapSqlParameterSource()
                 .addValue("id", id);
-
 
         jdbcTemplate.update(sql, source);
     }
